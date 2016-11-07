@@ -1,0 +1,110 @@
+%  DOCUMENT CLASS
+\documentclass[11pt]{article}
+
+%PACKAGES
+\usepackage[utf8]{inputenc}
+%\usepackage[ngerman]{babel}
+\usepackage[reqno,fleqn]{amsmath}
+\setlength\mathindent{10mm}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{color}
+\usepackage{delarray}
+% \usepackage{fancyhdr}
+\usepackage{units}
+\usepackage{times, eurosym}
+\usepackage{verbatim} %Für Verwendung von multiline Comments mittels \begin{comment}...\end{comment}
+\usepackage{wasysym} % Für Smileys
+\usepackage{gensymb} % Für \degree
+\usepackage{graphicx}
+\usepackage{tikz-er2}
+
+% FORMATIERUNG
+\usepackage[paper=a4paper,left=25mm,right=25mm,top=25mm,bottom=25mm]{geometry}
+\usepackage{array}
+\usepackage{fancybox} %zum Einrahmen von Formeln
+\setlength{\parindent}{0cm}
+\setlength{\parskip}{1mm plus1mm minus1mm}
+
+\allowdisplaybreaks[1]
+
+
+% PAGESTYLE
+
+%MATH SHORTCUTS
+\newcommand{\NN}{\mathbb N}
+\newcommand{\ZZ}{\mathbb Z}
+\newcommand{\QQ}{\mathbb Q}
+\newcommand{\RR}{\mathbb R}
+\newcommand{\CC}{\mathbb C}
+\newcommand{\KK}{\mathbb K}
+\newcommand{\U}{\mathbb O}
+\newcommand{\eqx}{\overset{!}{=}}
+\newcommand{\Det}{\mathrm{Det}}
+\newcommand{\Gl}{\mathrm{Gl}}
+\newcommand{\diag}{\mathrm{diag}}
+\newcommand{\sign}{\mathrm{sign}}
+\newcommand{\rang}{\mathrm{rang}}
+\newcommand{\cond}{\mathrm{cond}_{\| \cdot \|}}
+\newcommand{\conda}{\mathrm{cond}_{\| \cdot \|_1}}
+\newcommand{\condb}{\mathrm{cond}_{\| \cdot \|_2}}
+\newcommand{\condi}{\mathrm{cond}_{\| \cdot \|_\infty}}
+\newcommand{\eps}{\epsilon}
+
+\setlength{\extrarowheight}{1ex}
+
+\newcommand\tab[1][0.5cm]{\hspace*{#1}}
+
+\begin{document}
+	
+	\thispagestyle{empty}
+	
+	\usetikzlibrary{positioning}
+	\usetikzlibrary{shadows}
+	
+	\tikzstyle{every entity} = [top color=white, bottom color=blue!30, 
+	draw=blue!50!black!100, drop shadow]
+	\tikzstyle{every weak entity} = [drop shadow={shadow xshift=.7ex, 
+		shadow yshift=-.7ex}]
+	\tikzstyle{every attribute} = [top color=white, bottom color=yellow!20, 
+	draw=yellow, node distance=1cm, drop shadow]
+	\tikzstyle{every relationship} = [top color=white, bottom color=red!20, 
+	draw=red!50!black!100, drop shadow]
+	\tikzstyle{every isa} = [top color=white, bottom color=green!20, 
+	draw=green!50!black!100, drop shadow]
+	
+	\centering
+	\scalebox{.87}{
+		\begin{tikzpicture}[node distance=1.5cm, every edge/.style={link}]
+		
+		\node[entity] (article) {Article};
+		\node[attribute] (articleid) [above=of article] {\key{ID}} edge (article);
+		\node[attribute] (text) [above right=of article] {Text} edge (article);
+		\node[attribute] (title) [above left=of article] {Title} edge (article);
+		
+		\node[relationship] (assigned) [below right=of article] {categorized} edge (article);
+		\node[entity] (cat) [below right=of assigned] {Category} edge (assigned);
+		\node[attribute] [below=of cat] {\key{Name}} edge (cat);
+		
+		\node[relationship] (linksto) [below left=of article] {links to} edge (article);
+		\coordinate[below=of article] (coordinate) edge (linksto) edge (article);
+		
+		\node[relationship] (subs) [right=4cm of article] {subcategorized}  edge (article) edge (cat);
+		
+		\coordinate[below left=0.5cm  of article, label={*}];
+		\coordinate[below=2cm of article, label={*}];
+		\coordinate[below right=1cm of article, label={1}];
+		\coordinate[above left=0.5cm of cat, label={*}];  
+		\coordinate[right=of article, label={*}]; 
+		\coordinate[below=of subs, label={*}]; 
+		
+		
+		\end{tikzpicture}
+	}
+	\begin{itemize}
+		\item There might be multiple articles with the same title, therefore we use an ID as key
+		\item Categories should be identified with their name, everything else would lead to confusion
+	\end{itemize}
+	
+	
+\end{document}

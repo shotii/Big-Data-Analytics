@@ -1,0 +1,21 @@
+2.)
+CREATE TABLE Fact_TimeSpent(IpAddressId INT, CountryId INT, CityId INT, AccessDateId INT, BrowserAgentId INT, TimeSpent INT, PRIMARY KEY(IpAddress, Country, City, AccessDate, BrowserAgent)
+
+// Version = v4 or v6
+CREATE TABLE IpAddress(Id INT, Provider VARCHAR, Country VARCHAR, Version VARCHAR, PRIMARY KEY(Id))
+
+CREATE TABLE Country(Id INT, Name VARCHAR, PRIMARY KEY(Id))
+
+CREATE TABLE City(Id INT, Name VARCHAR, PRIMARY KEY(Id), FOREIGN KEY(CountryId INT))
+
+CREATE TABLE AccessDate(Id INT, Year INT, Month INT, Week INT, Day INT, PRIMARY KEY(Id))
+
+CREATE TABLE BrowserAgent(Id INT, Name VARCHAR, Version INT, Producer VARCHAR, PRIMARY KEY(Id))
+
+3.)
+SELECT SUM(ft.TimeSpent) AS TotalTimeSpent
+FROM Fact_TimeSpent FT
+INNER JOIN AccessDate Ad ON (FT.AccessDateId = Ad.Id)
+INNER JOIN Country C     ON (FT.CountryId    = C.Id)
+
+WHERE Ad.Month = 3 AND C.Name = "Germany" 

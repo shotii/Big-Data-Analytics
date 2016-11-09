@@ -1,3 +1,8 @@
+First a table for articles is created:
+
+CREATE TABLE articles (id INT, title VARCHAR, text TEXT, PRIMARY KEY(id));
+
+
 For the first three articles we inserted the article id, the article title and its text into the table.
 
 Using this sql query:

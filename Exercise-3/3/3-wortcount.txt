@@ -1,0 +1,20 @@
+First a table for articles is created:
+
+CREATE TABLE articles (id INT, title VARCHAR, text TEXT, PRIMARY KEY(id));
+
+
+For the first three articles we inserted the article id, the article title and its text into the table.
+
+Using this sql query:
+cursor.execute("INSERT into articles VALUES(%s,%s,%s)", (splitted[0], splitted[2], text))
+
+The measured time with timeit was: 168.56 seconds
+
+
+
+In the second program a csv is written which contains a row with article id, word and word count for each word in each article.
+
+Using this sql query:
+cursor.execute("SELECT id, word[1], count(*) FROM (SELECT regexp_matches(lower(a.text), '[A-Za-z\-]*', 'g') AS word, a.id FROM articles as a) AS view GROUP BY word, id ORDER BY word ASC")
+
+The measured time with timeit was: 19 seconds

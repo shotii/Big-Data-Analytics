@@ -82,22 +82,22 @@
 		\node[attribute] (text) [above right=of article] {Text} edge (article);
 		\node[attribute] (title) [above left=of article] {Title} edge (article);
 		
-		\node[relationship] (assigned) [below right=of article] {categorized} edge (article);
+		\node[relationship] (assigned) [below right=of article] {categorized as} edge (article);
 		\node[entity] (cat) [below right=of assigned] {Category} edge (assigned);
 		\node[attribute] [below=of cat] {\key{Name}} edge (cat);
 		
 		\node[relationship] (linksto) [below left=of article] {links to} edge (article);
 		\coordinate[below=of article] (coordinate) edge (linksto) edge (article);
 		
-		\node[relationship] (subs) [right=4cm of article] {subcategorized}  edge (article) edge (cat);
+		\node[relationship] (subs) [right=4cm of article] {has subcategories} edge (cat);
+		\coordinate[above right=of cat] (subcat) edge (subs) edge (cat);
 		
 		\coordinate[below left=0.5cm  of article, label={*}];
 		\coordinate[below=2cm of article, label={*}];
 		\coordinate[below right=1cm of article, label={1}];
 		\coordinate[above left=0.5cm of cat, label={*}];  
-		\coordinate[right=of article, label={*}]; 
-		\coordinate[below=of subs, label={*}]; 
-		
+		\coordinate[above=of cat, label={*}]; 
+		\coordinate[above right=of cat, label={*}]; 
 		
 		\end{tikzpicture}
 	}

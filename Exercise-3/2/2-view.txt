@@ -1,16 +1,8 @@
 The view containing all Tupel of article and word:
 
 CREATE VIEW wordDistributions AS
-  SELECT regexp_matches(a.text, ’[A-Za-z\-]*’) AS word, a.title AS article FROM articles AS a;  
-
-
-CREATE VIEW wordDistributions AS
   SELECT article, word[1], count(*) FROM (SELECT regexp_matches(lower(a.text), '[A-Za-z\-]*', 'g') AS word, a.title as article FROM articles as a) AS view GROUP BY word, article ORDER BY word ASC;
-
-
-
-
-  
+ 
   
 To get count of a specific word this query can used:
   

@@ -1,0 +1,15 @@
+First the two main tables containing all articles and categories are created:
+
+CREATE TABLE articles (id INT, title VARCHAR, text TEXT, PRIMARY KEY(id));
+
+CREATE TABLE categories (name VARCHAR, PRIMARY KEY(name));
+
+
+Then the relations are modelled as three additional tables: 
+
+CREATE TABLE links_to (linker INT, linked INT, PRIMARY KEY(linker,linked), FOREIGN KEY(linker) REFERENCES articles(id), FOREIGN KEY(linked) REFERENCES articles(id));
+
+CREATE TABLE categorized_as (id INT, name VARCHAR, PRIMARY KEY(id), FOREIGN KEY(id) REFERENCES articles(id), FOREIGN KEY(name) REFERENCES categories(name));
+
+CREATE TABLE has_subcategories (categorie VARCHAR, sub VARCHAR, PRIMARY KEY(categorie,sub), FOREIGN KEY(categorie) REFERENCES categories(name), FOREIGN KEY(sub) REFERENCES categories(name));
+

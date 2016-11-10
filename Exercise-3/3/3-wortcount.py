@@ -16,7 +16,6 @@ def count_words(cursor):
   out = open('output.csv', 'w')
   cout = csv.writer(out)
   
-  idx = 0
   for record in records:
     # article id, word and count is added as a row in the output.csv file
     cout.writerow([record[0], record[1], record[2]])

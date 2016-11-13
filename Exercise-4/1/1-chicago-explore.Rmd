@@ -1,0 +1,97 @@
+---
+title: "Exploration of the Chicaco-Crime Dataset"
+output: 
+  pdf_document: 
+    fig_caption: true
+documentclass: article
+classoption: a4paper
+geometry: margin=1cm
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## When do crimes occur?
+
+The data is read. To work properly with the date, it is converted to the POSIXt Date-Time Class.
+
+```{r}
+library(ggplot2)
+
+cc <- read.csv(file="chicago_crimes_sample.csv", header=TRUE, sep=",")
+
+cc$Date = strptime(cc$Date,format="%m/%d/%Y %I:%M:%S %p")
+```
+
+To figure out at which time on the day crimes occur, we  plot a histogram that contains a bar for each hour. Also a density plot is drawn. For more accurancy in the density plot, not only the hour, but also the minute, a crime was documented is considered.
+
+```{r}
+ggplot(cc, aes(cc$Date$hour)) + 
+  geom_histogram(aes(y = ..density..), breaks = seq(0,24, by =1))+
+  geom_density(col=2) + 
+  xlim(0, 24) + 
+  labs(x = "Hour of the day",y = "count")
+
+```
+
+The graph shows, that the number of crimes rises from 5am to 9pm, falls of after 11pm, has a weird peak at 12pm  and then falls to a low at 5am.
+We are unsure about the peak at 12pm, but the other values seem plausible.
+
+Next we consider the time in the year that crimes are comitted.
+For this analysis the 29th day in february that occures in leap years is a problem, because the variable yday of our POSIXlt date will give different values for days after the 28th of february.
+Therefore we build a data set without all crimes that occured on a 29th of february (which  are only 13).
+
+```{r}
+cc_wo_leap = cc[!(cc$Date$mon == 1 & cc$Date$mday == 29 ),]
+
+# %% is the modulo operator, yday == 59 is the 29.02 in leap years
+cc_wo_leap$Date$yday[cc_wo_leap$Date$year %% 4 == 0 & cc_wo_leap$Date$yday > 59] = cc_wo_leap$Date$yday[cc_wo_leap$Date$year %% 4 == 0 & cc_wo_leap$Date$yday > 59] - 1
+```
+
+Now we can consider a similar plot to the previous one:
+
+```{r}
+ggplot(cc_wo_leap, aes(cc_wo_leap$Date$yday)) + 
+  geom_histogram(aes(y = ..density..), breaks = seq(0,365, by =1)) + 
+  geom_density(col=2) + 
+  xlim(0, 365) + 
+  labs(x = "Day of the year",y = "count")
+```
+As in the previous graph the most crimes occur in the first section. Maybe most crimes occur after midnight and on the morning of the 1st of january or there is something else going on in the data.
+Otherwise, the number of crimes is more or less equally distributed over the year with a low in the last few days in the year.
+
+The minimum amout of crimes occur on the 82th day of the year, which is the 25th of december, the day that christmas is celebrated in chicago.
+```{r}
+count_per_day = aggregate(x = cc_wo_leap$Date$yday, by = list(cc_wo_leap$Date$yday),  FUN = length)
+count_per_day[count_per_day$x == max(count_per_day$x),]
+```
+
+## What crimes occur when?
+
+To find out about the distribution of crimes over time, we use the same graph as before, and divide the bars in parts for the different crimes.
+There are 27 different primary crime types, therefore there were too many similar colors and too small divisions in the bars, therefore all crimes that occured less than 1000 times are aggregated as 'other offense'.
+
+```{r}
+length(unique(cc$Primary.Type))  
+
+count_per_type = aggregate(x = cc$Primary.Type, by = list(cc$Primary.Type),  FUN = length)
+  
+other_crimes = count_per_type[count_per_type$x < 1000 | count_per_type$Group.1 == "OTHER OFFENSE" ,]
+
+cc$crime_type = cc$Primary.Type
+cc$crime_type[cc$Primary.Type %in% other_crimes$Group.1] = "OTHER OFFENSE"
+```
+
+No we can plot the desired graph.
+
+```{r}
+ggplot(cc, aes((cc$Date$hour*60+cc$Date$min)/60,fill=cc$crime_type)) + 
+  geom_histogram(aes(y = ..density..), breaks = seq(0,24, by =1)) + 
+  xlim(0, 24) + 
+  labs(x = "Hour of the day",y = "count")
+```
+
+It seems that burglaries occur most often between 7am and 9am and less in the evening.
+In contrast the majority of crimes in relationship with narcatics happen between 7pm and 22pm.
+

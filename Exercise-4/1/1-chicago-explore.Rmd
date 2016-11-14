@@ -27,7 +27,7 @@ cc$Date = strptime(cc$Date,format="%m/%d/%Y %I:%M:%S %p")
 To figure out at which time on the day crimes occur, we  plot a histogram that contains a bar for each hour. Also a density plot is drawn. For more accurancy in the density plot, not only the hour, but also the minute, a crime was documented is considered.
 
 ```{r}
-ggplot(cc, aes(cc$Date$hour)) + 
+ggplot(cc, aes((cc$Date$hour*60+cc$Date$min)/60)) + 
   geom_histogram(aes(y = ..density..), breaks = seq(0,24, by =1))+
   geom_density(col=2) + 
   xlim(0, 24) + 

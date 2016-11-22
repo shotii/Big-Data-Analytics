@@ -1,0 +1,13 @@
+Since this set is still quite small in size (~0.2 GB) there is no real need for big data products. However, if the data set keeps growing, which is likely to happen for movie quotes because each year new ones appear, then it might be necessary to use big data techniques.
+
+So, it initially fails at having enough size. 
+
+Further, it failes also at reaching a noteworthy data increase rate, i.e. it can be assumed that peer week the data set maybe increases by 1 MB. Which is way beyond what big data techniques are made for. 
+
+Also, there is barely variety in the data, i.e. their is only one source for the data, which disqualifies this task for being solved with big data techniques.
+
+Nevertheless, veracity is given, since there might be cases where the wrong movies are annoted with wrong quotes and so on. 
+
+The data it self is rather of low value, because there is no much insight given when looking at the raw movie-quotes tuples.
+
+

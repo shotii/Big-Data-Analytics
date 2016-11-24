@@ -1,6 +1,5 @@
 #!/usr/bin/python3
 
-
 import sys
 import re
 from nltk.stem.snowball import SnowballStemmer
@@ -20,7 +19,8 @@ def mapper():
     for word in text:
       word = word.strip()
       if word != '':
-        word = stemmer.stem(word)      
+        word = stemmer.stem(word)    
+        # the key consists of article id, article title and the word seperated with a semicolon  
         print(splitted[0],";",splitted[2],";",word,",",1,sep = '')
 
 

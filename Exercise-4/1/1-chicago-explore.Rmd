@@ -65,6 +65,8 @@ The minimum amout of crimes occur on the 82th day of the year, which is the 25th
 ```{r}
 count_per_day = aggregate(x = cc_wo_leap$Date$yday, by = list(cc_wo_leap$Date$yday),  FUN = length)
 count_per_day[count_per_day$x == max(count_per_day$x),]
+count_per_day[count_per_day$x == min(count_per_day$x),]
+cc_wo_leap[cc_wo_leap$Date$yday == 358,"Date"][1]
 ```
 
 ## What crimes occur when?

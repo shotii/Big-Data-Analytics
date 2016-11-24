@@ -5,8 +5,9 @@ import re
 import csv
 
 def reducer():
-  # our dictionary
+  # dictionary that counts word occurances over all articles
   counter = {}
+  # dictionary that counts word occurances over the current article
   article_counter = {}
   prev_title = ''
   prev_id = 0
@@ -14,11 +15,14 @@ def reducer():
   for line in sys.stdin:
     (article_id,title,wordandcount) = line.split(';')
     (word,count) = wordandcount.split(',')
+    # have we reached the end of the input?
     if line == '':
       break;
+    # processing the special case of the first article
     if prev_title == '':
       prev_title = title
       prev_id = article_id
+    # if prev_title != title we completed the previous article
     if prev_title != title:  
       print(prev_id,", ",prev_title,", ",wordcount,", ",article_counter,sep='')
       prev_title = title
@@ -35,7 +39,7 @@ def reducer():
     else:
       counter[word] = int(count)
 
-  # für den letzten Artikel muss die Ausgabe noch stattfinden 
+  # output for the last article has to be done 
   print(prev_id,", ",prev_title,", ",wordcount,", ",article_counter,sep='')
   
   out = open('wiki-clean-frequency.csv', 'w')

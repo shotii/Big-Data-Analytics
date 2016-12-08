@@ -1,0 +1,164 @@
+---
+title: "Exploration of IMDb Quotes"
+output: 
+  pdf_document: 
+    fig_caption: true
+documentclass: article
+classoption: a4paper
+geometry: margin=1cm
+---
+
+First load the data.
+
+```{r}
+d = read.csv("imdb-quotes.csv", header=F, stringsAsFactors=F, sep="|", quote="\"")
+colnames(d) = c("movie", "year", "episode", "actors", "quote")
+
+d$year = as.numeric(d$year)
+d = d[d$year > 1800 & d$year < 2020 & ! is.na(d$year),]
+```
+
+## Are there movies which quotes are extreme?
+
+We can examine the number of quotes per movie:
+
+```{r}
+nof_quotes = aggregate(d$movie, list(d$movie), length)
+names(nof_quotes) = c("Movie","#quotes")
+nof_quotes = nof_quotes[order(nof_quotes$`#quotes`,decreasing = TRUE),]
+head(nof_quotes,n = 10)
+
+library(ggplot2)
+ggplot(data.frame(movies = 1:length(nof_quotes$`#quotes`), nof_quotes = nof_quotes$`#quotes`),
+       aes(x = movies, y = nof_quotes)) +
+  geom_line()
+```
+
+As expected the most quotes are from popular series with many episodes.
+There are only a few movies with many quotes. Most have only one or two.
+To view the number of quotes of actual movies instead of series, we filter out all entries with a specified episode. 
+
+
+```{r}
+movies = d[d$episode == '',]
+nof_quotes_movies = aggregate(movies$movie, list(movies$movie), length)
+names(nof_quotes_movies) = c("Movie","#quotes")
+nof_quotes_movies = nof_quotes_movies[order(nof_quotes_movies$`#quotes`,decreasing = TRUE),]
+head(nof_quotes_movies,n = 10)
+```
+
+It seems like this approach doesn't work. There are still series in our movies data frame. 
+Now, we want to look at the length of the quotes. Therefore it is necessary to clean the quotes from the stage directions in brackets and from the names of the characters.
+
+```{r}
+d$cleaned_quote = gsub( "( ?\\w*)*\\:", "", gsub( "\\[.*?\\] ", "", d$quote))
+
+d$`#words` = sapply(gregexpr("\\S+", d$cleaned_quote), length)
+
+d = d[order(d$`#words`,decreasing = TRUE),]
+head(d[,c("movie","#words")],n = 10)
+
+ggplot(data.frame(quotes = 1:length(d$`#words`), nof_words = d$`#words`),
+       aes(x = quotes, y = nof_words)) +
+  geom_line()
+```
+
+These are the movies with the single longest quotes.
+Again there are only a few very long quotes, most are rather short.
+We can also look at the whole collection of all quotes for each movie.
+
+```{r}
+aggregated_quotes = aggregate(cleaned_quote ~ movie, data = d, FUN=paste, collapse=' ')
+aggregated_quotes$`#words` = sapply(gregexpr("\\S+", aggregated_quotes$cleaned_quote), length)
+
+aggregated_quotes = aggregated_quotes[order(aggregated_quotes$`#words`,decreasing = TRUE),]
+head(aggregated_quotes[,c("movie","#words")],n = 10)
+
+```
+
+The summed length of quotes is quite similar to the list of movies with the most quotes.
+We can also look at the average length of quotes.
+
+```{r}
+aggregated_quotes$average_words_per_quote = (aggregated_quotes$`#words`)/(nof_quotes$`#quotes`)
+
+
+aggregated_quotes = aggregated_quotes[order(aggregated_quotes$average_words_per_quote,decreasing = TRUE),]
+head(aggregated_quotes[,c("movie","average_words_per_quote")],n = 10)
+
+```
+
+Are there quotes with many actors involved.
+
+```{r}
+d$`#actors` = sapply(strsplit(d$actors, ","), length)
+
+d = d[order(d$`#actors`,decreasing = TRUE),]
+head(d[,c("movie","#actors")],n = 10)
+
+```
+##  Is there a correlation between "interesting words" and movie?
+
+To examine this question, we calculate the word frequency of words over all quotes together and compare it to the word frequency of certain movies.
+
+```{r}
+# collapse all quotes to one text
+all_text = paste(d$cleaned_quote, collapse=" ")
+# remove punctuations
+all_text = gsub("[[:punct:]]", "", all_text)
+# convert all letters to lower case
+all_text = tolower(all_text)
+# merge multiple spaces to one
+all_text = gsub("(?<=[\\s])\\s*|^\\s+|\\s+$", "", all_text, perl=TRUE)
+# split into list of words
+all_words = strsplit(all_text, " ")
+# retrieve all unqiue words
+unique_words = unique(all_words[[1]])
+
+# create a data frame with all words
+word_count = data.frame(1:length(unique_words))
+names(word_count) = c("word")
+word_count$word = unique_words
+# count the occurrence of words
+word_table = table(all_words)
+# sadly my computing power is not sufficient to perform this on the whole data frame with all words, therefore we sample some words
+smaller = head(word_count, 10000)
+smaller$count = lapply(X = smaller$word, FUN = function(word) word_table[word][[1]])
+word_sum = sum(as.numeric(smaller$count))
+smaller$freq = as.numeric(smaller$count)/word_sum
+smaller = smaller[order(smaller$freq,decreasing = TRUE),]
+# throw away the 200 most common words, which are mostly uninteresting
+smaller = tail(smaller, 9800)
+
+#we calculate the word frequencies for some interesting movies/series and compare them to the overall frequencies
+
+word_table = table(strsplit(gsub("(?<=[\\s])\\s*|^\\s+|\\s+$", "", tolower(gsub("[[:punct:]]", "", paste(aggregated_quotes$cleaned_quote[aggregated_quotes$movie == "The Simpsons"], collapse=" "))), perl=TRUE), " "))
+smaller$Simpsons = lapply(X = smaller$word, FUN = function(word) word_table[word][[1]])
+smaller$Simpsons[is.na(smaller$Simpsons)] = 0
+word_sum = sum(as.numeric(smaller$Simpsons))
+smaller$Simpsons_freq = as.numeric(smaller$Simpsons)/word_sum
+smaller$Simpsons_to_overall = smaller$Simpsons_freq - smaller$freq
+smaller = smaller[order(smaller$Simpsons_to_overall,decreasing = TRUE),]
+head(smaller[,c("word","Simpsons_to_overall","count","Simpsons","freq","Simpsons_freq")],n = 10)
+
+word_table = table(strsplit(gsub("(?<=[\\s])\\s*|^\\s+|\\s+$", "", tolower(gsub("[[:punct:]]", "", paste(aggregated_quotes$cleaned_quote[aggregated_quotes$movie == "Doctor Who"], collapse=" "))), perl=TRUE), " "))
+smaller$DrWho = lapply(X = smaller$word, FUN = function(word) word_table[word][[1]])
+smaller$DrWho[is.na(smaller$DrWho)] = 0
+word_sum = sum(as.numeric(smaller$DrWho))
+smaller$DrWho_freq = as.numeric(smaller$DrWho)/word_sum
+smaller$DrWho_to_overall = smaller$DrWho_freq - smaller$freq
+smaller = smaller[order(smaller$DrWho_to_overall,decreasing = TRUE),]
+head(smaller[,c("word","DrWho_to_overall","count","DrWho","freq","DrWho_freq")],n = 10)
+
+word_table = table(strsplit(gsub("(?<=[\\s])\\s*|^\\s+|\\s+$", "", tolower(gsub("[[:punct:]]", "", paste(aggregated_quotes$cleaned_quote[aggregated_quotes$movie == "Pulp Fiction"], collapse=" "))), perl=TRUE), " "))
+smaller$PulpFiction = lapply(X = smaller$word, FUN = function(word) word_table[word][[1]])
+smaller$PulpFiction[is.na(smaller$PulpFiction)] = 0
+word_sum = sum(as.numeric(smaller$PulpFiction))
+smaller$PulpFiction_freq = as.numeric(smaller$PulpFiction)/word_sum
+smaller$PulpFiction_to_overall = smaller$PulpFiction_freq - smaller$freq
+smaller = smaller[order(smaller$PulpFiction_to_overall,decreasing = TRUE),]
+head(smaller[,c("word","PulpFiction_to_overall","count","PulpFiction","freq","PulpFiction_freq")],n = 10)
+
+```
+
+The ten words with highest occurance frequency compared to the overall frequency seem to be very representative for the individual movies.

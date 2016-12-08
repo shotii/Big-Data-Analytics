@@ -1,0 +1,162 @@
+---
+title: "Classification of Titanic Survials "
+output: 
+  pdf_document: 
+    fig_caption: true
+documentclass: article
+classoption: a4paper
+geometry: margin=1cm
+---
+
+First load the data.
+
+```{r}
+d <- read.csv("titanic.csv", stringsAsFactors=TRUE)
+str(d)
+```
+
+Now, we can create a decision tree, which predicts the value of the 'Survived' class.
+
+```{r}
+library(rpart)
+fit <- rpart(Survived ~ Class + Sex + Age,
+               data=d,
+               method="class")
+
+library('rattle')
+library('rpart.plot')
+library('RColorBrewer')
+
+fancyRpartPlot(fit)
+```
+
+In this plot every node contains three attributes:
+1. For what outcome (survives or not survives) does the tree vote for in respect to the contained datapoints in the node. 2. The percentage of victims and survivors. 3. The percentage of datapoints contained in this node.
+
+The most important distinctive feature is the sex. Another important criterium seems to be if the person was in class three or not, people that were not in the 3rd class have significantly higher surviving chance.
+
+Now, we can perform training with k-fold-cross-validation.
+At first we have a look at the predictions of the k different training/validation sets. 
+
+```{r}
+library(cvTools)
+
+results = data.frame(1:10,2)
+names(results) = c("prec","rec")
+f = cvFolds(nrow(d), K=10, R=1, type="random")
+
+for (set in 1:10){
+  validation = d[f$subsets[f$which == set],] 
+  training = d[f$subsets[f$which != set], ]
+  
+  fit = rpart(Survived ~ Class + Sex + Age, data=training, method="class")
+  prediction = predict(fit, validation, type = "class")
+  pd = data.frame(X = validation$X, Survived = validation$Survived, Pred = prediction)
+  
+  # calculate number of true positives, false positives and false negatives
+  tp = sum(ifelse(pd$Pred[pd$Pred == "Yes"] == pd$Survived[pd$Pred == "Yes"], 1, 0))
+  fp = sum(ifelse(pd$Pred[pd$Pred == "Yes"] != pd$Survived[pd$Pred == "Yes"], 1, 0))
+  fn = sum(ifelse(pd$Pred[pd$Pred == "No"] == pd$Survived[pd$Pred == "No"], 1, 0))
+  
+  # now we can calculate precision and recall which represent false postives and false negatives
+  prec = tp/(tp+fp)
+  rec = tp/(tp+fn)
+  
+  results$prec[set] = prec
+  results$rec[set] = rec
+}
+
+library(ggplot2)
+qplot(x = results$rec, y = results$prec,xlim = c(0,1), ylim = c(0,1), xlab = "Recall", ylab = "Precision")
+
+```
+
+The results from the different subsets seem to be reasonably close to each other.
+The precision is really good, which means that a high percentage of datapoints that were classified positive were indeed positive.
+The recall, however, is quite bad, which means that only a small percentage of positive datapoints were also classified as such.
+In the following examinations the average values through the k subsets will be considered.
+Now, we look at the effect of different k's.
+
+```{r}
+overall_results = data.frame(1:9,2,3)
+names(overall_results) = c("prec","rec","error_rate")
+idx = 1
+for (k in seq(2,10,1)) {
+  results = data.frame(1:k,2,3)
+  names(results) = c("prec","rec","error_rate")
+  f = cvFolds(nrow(d), K=k, R=1, type="random")
+  for (set in 1:k){
+    validation = d[f$subsets[f$which == set],] 
+    training = d[f$subsets[f$which != set], ]
+    fit = rpart(Survived ~ Class + Sex + Age, data=training, method="class")
+    prediction = predict(fit, validation, type = "class")
+    pd = data.frame(X = validation$X, Survived = validation$Survived, Pred = prediction)
+    tp = sum(ifelse(pd$Pred[pd$Pred == "Yes"] == pd$Survived[pd$Pred == "Yes"], 1, 0))
+    fp = sum(ifelse(pd$Pred[pd$Pred == "Yes"] != pd$Survived[pd$Pred == "Yes"], 1, 0))
+    fn = sum(ifelse(pd$Pred[pd$Pred == "No"] == pd$Survived[pd$Pred == "No"], 1, 0))
+    results$prec[set] = tp/(tp+fp)
+    results$rec[set] = tp/(tp+fn)
+    results$error_rate[set] = (fp+fn)/nrow(validation)
+    if (results$rec[set] == 0) {
+      print(tp)
+    }
+  }
+  overall_results$prec[idx] = mean(results$prec)
+  overall_results$rec[idx] = mean(results$rec)
+  overall_results$error_rate[idx] = mean(results$error_rate)
+  idx = idx + 1
+}
+
+overall_results$k = 2:10
+qplot(x = overall_results$rec, y = overall_results$prec,xlim = c(0,1), ylim = c(0,1), xlab = "Recall", ylab = "Precision")
+```
+
+In this plot we see that the precision and recall for different ks are quite similar.
+
+To analyze this more detailed, can identify the points with the corresponding k.
+
+```{r}
+ggplot(overall_results, aes(x= rec, y= prec, label=k))+
+  geom_point() +geom_text(aes(label=k),hjust=-0.4, vjust=0)
+```
+
+There is no clear correlation between the k and the model performance.
+We can validate this with a plot of error rates for the different k.
+
+```{r}
+qplot(x = overall_results$k, y = overall_results$error_rate, ylim = c(0,1), xlab = "k", ylab = "Error Rate")
+```
+
+Now, to examine how much training data is necessary to achieve acceptable results, we can perform k-cross-validation in a reverse manner.
+Instead of using k-1 of the k subsets for training and 1 for validation, we use only 1 for training and k-1 for validation. 
+
+```{r}
+overall_results = data.frame(1:10,2,3)
+names(overall_results) = c("prec","rec","error_rate")
+idx = 1
+for (k in seq(2,50,5)) {
+  results = data.frame(1:k,2,3)
+  names(results) = c("prec","rec","error_rate")
+  f = cvFolds(nrow(d), K=k, R=1, type="random")
+  for (set in 1:k){
+    validation = d[f$subsets[f$which != set],] 
+    training = d[f$subsets[f$which == set], ]
+    fit = rpart(Survived ~ Class + Sex + Age, data=training, method="class")
+    prediction = predict(fit, validation, type = "class")
+    pd = data.frame(X = validation$X, Survived = validation$Survived, Pred = prediction)
+    tp = sum(ifelse(pd$Pred[pd$Pred == "Yes"] == pd$Survived[pd$Pred == "Yes"], 1, 0))
+    fp = sum(ifelse(pd$Pred[pd$Pred == "Yes"] != pd$Survived[pd$Pred == "Yes"], 1, 0))
+    fn = sum(ifelse(pd$Pred[pd$Pred == "No"] == pd$Survived[pd$Pred == "No"], 1, 0))
+    results$prec[set] = tp/(tp+fp)
+    results$rec[set] = tp/(tp+fn)
+    results$error_rate[set] = (fp+fn)/nrow(validation)
+  }
+  overall_results$error_rate[idx] = mean(results$error_rate)
+  idx = idx + 1
+}
+
+overall_results$k = seq(2,50,5)
+qplot(x = overall_results$k, y = overall_results$error_rate, ylim = c(0,1), xlab = "k", ylab = "Error Rate")
+```
+
+It seems like the amount of training data is completly insignificant for the mean error rate.

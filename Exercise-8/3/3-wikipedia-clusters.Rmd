@@ -1,0 +1,171 @@
+---
+title: "Clustering Wikipedia Articles"
+output: 
+  pdf_document: 
+    fig_caption: true
+documentclass: article
+classoption: a4paper
+geometry: margin=1cm
+---
+
+## Preparation
+
+First load the data.
+
+```{r}
+library(tm)
+library(SnowballC)
+d = read.csv("enwiki-clean-10MiB.csv", sep=";", quote="", header=F, stringsAsFactors=FALSE)
+colnames(d) = c("title","content")
+
+```
+
+Many articles have no content assigned to them, these articles are removed.
+
+```{r}
+d = d[d$content != '',]
+```
+
+As next step a text corpus is created.
+
+```{r}
+corpus = Corpus(VectorSource(d$content))
+
+# We can set metadata, e.g. title:
+i=0
+corpus = tm_map(corpus, function(x) {
+  i = i + 1
+  meta(x, "title") = d$title[i]
+  x
+})
+```
+
+We apply functions to clean the data.
+
+```{r}
+corpus = tm_map(corpus, removePunctuation)
+corpus = tm_map(corpus, stripWhitespace)
+# removing numbers seems to destroy some strings
+#corpus = tm_map(corpus, removeNumbers)
+corpus = tm_map(corpus, content_transformer(tolower))
+# we stem the words
+corpus = tm_map(corpus, removeWords, stopwords("english"))
+corpus = tm_map(corpus, stemDocument)
+corpus = tm_map(corpus, stripWhitespace)
+```
+
+Now, we create a document term matrix from the text corpus. For further usage the sparse matrix is converted into a dense matrix.
+From this matrix the actual word frequencies can be calculated.
+
+```{r}
+# Create a sparse matrix for each document
+dtm = DocumentTermMatrix(corpus)
+# create a matrix containing the counted words
+dtm.dense = as.matrix(dtm)
+# we normalize the data, instead of the count of words per document, 
+# we now have percentage of word occurrences in the document relative to the sum of all documents 
+dtm.normalized = apply(dtm.dense, 2, function(x)(x-min(x))/(max(x)-min(x)))
+# we calculate a distance matrix that contains the euclidean distance between the articles based on the word frequencies 
+dtm.normalized = dtm.normalized[1:1000,]
+```
+
+## K-means
+
+We apply k-means clustering, first with many clusters.
+
+```{r}
+k_clusters = kmeans(dtm.normalized, 50)
+```
+To analyze how good the cluster are we can analyze some statistics.
+
+```{r}
+k_clusters$size
+```
+It seems like almost all articles are in the same cluster, we can also look at the sum of square differences of the elements within the clusters.
+
+```{r}
+k_clusters$withinss
+```
+
+As many clusters contain only one arcticle, the sum of square difference is zero for these clusters.
+If we sum up the within-cluster sum of squares for all clusters the value should be considerably smaller than the simple total sum of squares.
+```{r}
+sum(k_clusters$withinss)
+k_clusters$totss
+```
+
+As we can see the clusters do contain a meaningful grouping of the articles.
+To find a good amount of clusters, we can calculate the difference of the within-cluster sum of squares and the total sum of squares for different ks.
+
+```{r}
+diffs = data.frame(seq(from = 2,to = 100,by = 4),0)
+names(diffs) = c("k","difference")
+for (k in seq(from = 2,to = 100,by = 4)){
+  k_clusters = kmeans(dtm.normalized, k)
+  diffs$difference[diffs$k == k] = k_clusters$totss-sum(k_clusters$withinss)
+}
+
+library(ggplot2)
+ggplot(diffs, aes(x = diffs$k, y = diffs$difference)) +
+  geom_line()
+```
+
+The optimal amount of clusters might be somewhere around 50. The gradient after k = 50 becomes linear, which is the expected behavior at the point were just a single data point is put into a new cluster. 
+
+## Hierachical clustering
+
+Now, we can do clustering with the hierachical clustering method.
+Therefore, we have to calculate a distance matrix.
+
+```{r}
+distance_matrix = dist(dtm.normalized,method = "euclidean")
+
+h_clusters = hclust(distance_matrix,method = "complete")
+plot(h_clusters)
+```
+
+This dendrogram contains all articles.
+Now, we have to decide at which point we want to cut the clustering.
+We use the number of 50 clusters that has previously shown to be a reasonable number of clusters.
+
+```{r}
+clusterCut <- cutree(h_clusters, 50)
+plot(h_clusters)
+rect.hclust(h_clusters, k=50, border="red") 
+```
+
+With red rectangles the different clusters are made visible.
+We can see clearly that one cluster contains most articles.
+
+To compare the obtained clusters to the from the k-means algorithm, we calculate the size of the clusters 
+
+#and also the within-cluster sum of squares and the total sum of squares.
+
+```{r}
+cluster_size = aggregate(clusterCut, list(clusterCut), length)
+cluster_size[order(cluster_size$x,decreasing = TRUE),]
+
+```
+
+As we supposed already, most clusters, even more as in the k-means clusters, have been assigned to the same cluster.
+Therefore, K-means seems to provide better results for clustering of the wikipedia articles.
+
+## Programs execution time
+
+How long takes clustering with the two methods?
+
+```{r}
+start.time <- Sys.time()
+k_clusters = kmeans(dtm.normalized, 50)
+end.time <- Sys.time()
+time.taken <- end.time - start.time
+time.taken
+
+start.time <- Sys.time()
+h_clusters = hclust(distance_matrix,method = "complete")
+end.time <- Sys.time()
+time.taken <- end.time - start.time
+time.taken
+```
+
+The hierachical clustering is much faster than the k-means algorithm.

@@ -1,0 +1,12 @@
+All articles that link to the article Artificial_intelligence:
+  MATCH (n:Article)-[r:links]->(m:Article {title: "Artificial_intelligence"}) RETURN n
+
+All shortest paths between Alan_Turing and Gene_Amdahl via links:
+  MATCH (turing:Article {title: "Alan_Turing"}), (amdahl:Article {title: "Gene_Amdahl"}), path = shortestpath((turing)-[:links*]-(amdahl))  RETURN path
+
+Number of articles in the dataset:
+  MATCH (n:Article) RETURN count(*)
+
+The most strongly connected article:
+
+MATCH (a)-[r]-(b) RETURN a.title, SUM(CASE WHEN (STARTNODE(r) = a OR STARTNODE(r) = b) THEN 1 ELSE 0 END) AS sum, SUM (CASE WHEN STARTNODE(r) = b THEN 1 ELSE 0 END) AS incoming, SUM (CASE WHEN STARTNODE(r) = a THEN 1 ELSE 0 END) AS outgoing ORDER BY sum DESC LIMIT 1

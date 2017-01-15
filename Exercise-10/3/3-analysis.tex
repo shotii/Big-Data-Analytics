@@ -1,0 +1,95 @@
+%  DOCUMENT CLASS
+\documentclass[11pt]{article}
+
+%PACKAGES
+\usepackage[utf8]{inputenc}
+%\usepackage[ngerman]{babel}
+\usepackage[reqno,fleqn]{amsmath}
+\setlength\mathindent{10mm}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{color}
+\usepackage{delarray}
+% \usepackage{fancyhdr}
+\usepackage{units}
+\usepackage{times, eurosym}
+\usepackage{verbatim} %Für Verwendung von multiline Comments mittels \begin{comment}...\end{comment}
+\usepackage{wasysym} % Für Smileys
+\usepackage{gensymb} % Für \degree
+\usepackage{graphicx}
+\usepackage{tikz}
+\usepackage[displaymath, mathlines]{lineno}
+\usepackage{mathtools}
+\usepackage{stmaryrd}
+
+% FORMATIERUNG
+\usepackage[paper=a4paper,left=25mm,right=25mm,top=25mm,bottom=25mm]{geometry}
+\usepackage{array}
+\usepackage{fancybox} %zum Einrahmen von Formeln
+\setlength{\parindent}{0cm}
+\setlength{\parskip}{1mm plus1mm minus1mm}
+
+\allowdisplaybreaks[1]
+
+
+% PAGESTYLE
+
+%MATH SHORTCUTS
+\newcommand{\NN}{\mathbb N}
+\newcommand{\ZZ}{\mathbb Z}
+\newcommand{\QQ}{\mathbb Q}
+\newcommand{\RR}{\mathbb R}
+\newcommand{\CC}{\mathbb C}
+\newcommand{\KK}{\mathbb K}
+\newcommand{\U}{\mathbb O}
+\newcommand{\eqx}{\overset{!}{=}}
+\newcommand{\Det}{\mathrm{Det}}
+\newcommand{\Gl}{\mathrm{Gl}}
+\newcommand{\diag}{\mathrm{diag}}
+\newcommand{\sign}{\mathrm{sign}}
+\newcommand{\rang}{\mathrm{rang}}
+\newcommand{\cond}{\mathrm{cond}_{\| \cdot \|}}
+\newcommand{\conda}{\mathrm{cond}_{\| \cdot \|_1}}
+\newcommand{\condb}{\mathrm{cond}_{\| \cdot \|_2}}
+\newcommand{\condi}{\mathrm{cond}_{\| \cdot \|_\infty}}
+\newcommand{\eps}{\epsilon}
+
+\setlength{\extrarowheight}{1ex}
+
+\newcommand\tab[1][0.5cm]{\hspace*{#1}}
+
+\begin{document}
+	
+	\begin{center}
+		\textbf{
+			Big Data, WS 2016/17\\
+			Excercise Sheet 10 - 3 Performance Analysis\\
+		}
+	\end{center}
+	\subsection*{1. Data is on HDD}
+	We assume that the Wikipedia-data of 32GiB ($2.749\cdot 10^{11}$ Bits) is stored on the HDD of one Abu node.
+	The processing can be divided into 4 parts: Reading of the data from the disk, communication between nodes (splitting of the data), computation time to count the words, output of the result. \medskip	
+	
+	\begin{itemize}
+		\item \textbf{Read:} The HDD reads the file with 100MiB/s ($8.389\cdot 10^8$ Bits/s). The 32GiB file is read in 328 seconds.
+		\item \textbf{Communication:} No communication is used
+		\item  \textbf{Counting words:} We assume that to count the words each char of the file has to be looked at once, if the char is space a counter is increased. The 32GiB file contains $3.43625\cdot 10^{10}$ chars. We assume that one char can be processed in one CPU cycle. The node has 4 sockets with a 12 core CPU with 2.6 GHz each: $4\cdot 12 \cdot 2.6$ GHz $= 124.8\cdot 10^9$ cycles/s.
+		Therefore all chars can be processed in 0.28 seconds.
+		\item \textbf{Output:} The total word count is written out, this is negligible.
+	\end{itemize}
+	
+	Reading and counting can be done simultaneously, therefore the whole process is done in 328 seconds.
+	
+	\subsection*{2. Data over network}
+	If the data input is done via network, the best solution would be do split the file onto the 5 Abu nodes. Each has to process 6.4 GiB ($5.498\cdot 10^{10}$ Bit) of data. \medskip	
+		
+		\begin{itemize}
+			\item \textbf{Input:} The data is provided via Gigabit Ethernet ($10^9$ Bit/s), therefore 6.4GiB are transferred in 55 seconds.  
+			\item \textbf{Communication:} In the end the total sum of each split has to be communicated and summed up, this is negligible.
+			\item  \textbf{Counting words:} Each split contains $6.8725\cdot 10^{9}$ chars. With $124.8\cdot 10^9$ cycles/s this is processed in 0.06 seconds.
+			\item \textbf{Output:} The total word count is written out, this is negligible.
+		\end{itemize}
+	Input and processing can be done simultaneously. Then the results per split are communicated and in the end the overall result in written out. 
+	The whole process can done in 55 seconds.
+\end{document}
+

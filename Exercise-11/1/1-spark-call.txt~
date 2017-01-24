@@ -1,6 +1,15 @@
 local:
-PYSPARK_PYTHON=python3
 pyspark 1-spark.py 
+
+or
+
+PYSPARK_PYTHON=python3 pyspark --master yarn-client --driver-memory 500m --executor-memory 500m --conf spark.ui.port=4711
+
+then load the script
 
 yarn:
 PYSPARK_PYTHON=python3 spark-submit --master yarn-cluster --driver-memory 4g --executor-memory 4g --num-executors 5 --executor-cores 24 1-spark.py
+
+
+PYSPARK_PYTHON=python3 pyspark --master yarn-client --driver-memory 500m --executor-memory 500m --conf spark.ui.port=4711
+

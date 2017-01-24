@@ -1,0 +1,41 @@
+from pyspark import SparkContext
+from pyspark.mllib.feature import HashingTF
+import numpy as np
+import csv, io, sys
+
+# threshold is given as program argument
+t = sys.argv[1]
+
+# create sparkContext
+conf = SparkConf()
+conf.setAppName("testFabian")
+sc = SparkContext(conf=conf)
+
+# Load articles (one per line).
+rdd = sc.textFile("/user/bigdata/wikipedia-text-tiny-clean500")
+
+# each article is mapped onto the tuple of title and word vector
+hashingTF = HashingTF()
+articles = rdd.map(lambda line: (line.split(",")[2], (hashingTF.transform(line.split(" ")))))
+
+# this function calculates the cosine similarity for two instances of SparseVector
+def cosine_similarity(a, b):
+  return a.dot(b)/(np.sqrt(a.dot(a))*np.sqrt(b.dot(b)))
+
+# through the cartesian we get a pairing for each article with each other article
+# then distance is calculated as 1-cosine similarity
+# only articles below user defined threshold are kept
+# in the end it is grouped by key
+articles_below_threshold = articles.cartesian(articles) \
+        .map(lambda line: (line[0][0], (line[1][0], 1-cosine_similarity(line[0][1],line[1][1])))) \
+        .filter(lambda line: line[1][1] <= t) \
+        .groupByKey()
+
+# this function converts a list of strings into a csv-formatted string
+def list_to_csv_str(x):
+    output = io.StringIO("")
+    csv.writer(output).writerow(x)
+    return output.getvalue().strip()
+
+# save tuples of (article, list of similar articles as tuples (title, distance))
+articles_below_threshold.map(list_to_csv_str).saveAsTextFile('output1')

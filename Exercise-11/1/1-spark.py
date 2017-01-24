@@ -8,7 +8,7 @@ WORD = 'computer'
 
 # create sparkContext
 conf = SparkConf()
-conf.setAppName("testFabse")
+conf.setAppName("testFabian")
 sc = SparkContext(conf=conf)
 
 def parseInput(file_name="/user/bigdata/wikipedia-text-tiny-clean500"):

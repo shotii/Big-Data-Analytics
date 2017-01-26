@@ -1,4 +1,5 @@
 local:
+export PYSPARK_PYTHON=python3
 pyspark 1-spark.py 
 
 or

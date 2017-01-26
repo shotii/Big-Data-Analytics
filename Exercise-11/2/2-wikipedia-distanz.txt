@@ -1,0 +1,15 @@
+export PYSPARK_PYTHON=python3
+time pyspark 2-wikipedia-distanz.py 0.1 "output"
+
+for 1000 articles it took:
+real	1m16.780s
+user	0m25.212s
+sys	0m1.928s
+
+example output (I had to use article IDs as key in the shortened version with only 1000 articles)
+
+('21796388', '"(\'21796388\', -2.2204460492503131e-16)"')
+('4278497', '"(\'4278497\', 0.0)"')
+('503915', '"(\'564181\', 0.082865591874794475)","(\'503915\', 2.2204460492503131e-16)","(\'11160140\', 0.085304250798575842)"')
+('38681581', '"(\'1640\', 0.096639734367377272)","(\'38681581\', 0.0)"')
+

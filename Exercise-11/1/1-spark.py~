@@ -8,27 +8,30 @@ WORD = 'computer'
 
 # create sparkContext
 conf = SparkConf()
-conf.setAppName("testFabse")
+conf.setAppName("testFabian")
 sc = SparkContext(conf=conf)
 
 def parseInput(file_name="/user/bigdata/wikipedia-text-tiny-clean500"):
   # Read in the data and clean it
-  rdd = sc.textFile(file_name)
+  rdd = sc.textFile(file_name) \
+          .map(lambda x: x.lower()) \
+          .map(lambda x: re.compile('\w+').findall(x))
   return rdd
 
 rdd = parseInput()
 
 # split each line into words, flatMap into tuples of (article, word) and filter
-words = rdd.map(lambda x: x.split(' ')).flatMap(lambda x: [(x[0], e) for e in x]) \
-           .filter(lambda x: x[1] == WORD)
+words = rdd.flatMap(lambda x: [(x[0], word) for word in x]) \
+          .filter(lambda x: x[1] == WORD)
 
 # multiple occurances per article shouldnt be counted
 counts = words.groupByKey()
-print("Absolut count of articles:",counts.count())
-print("Relative count of articles:",float(counts.count())/rdd.count())
+print("Absolut count of articles containing the word:",counts.count())
+print("Relative count of articles containing the word:",float(counts.count())/rdd.count())
 
 # articles containing the word
-articles = rdd.filter(lambda x: WORD in x.split(' '))
+articles = sc.textFile("/user/bigdata/wikipedia-text-tiny-clean500") \
+            .filter(lambda x: WORD in re.compile('\w+').findall(x.lower()))
 
 # Each article is saved in a file in the folder 'output'
 articles.saveAsTextFile('output')
@@ -45,11 +48,14 @@ def increment(article):
 rdd.foreach(increment)
 print("Absolut count: %s, relative count %f" % (word_count, float(word_count.value)/overall_count.value))
 
+# using data frames with sql
 sqlContext = SQLContext(sc)
+# tuples of article title and word
+words = sc.textFile("/user/bigdata/wikipedia-text-tiny-clean500") \
+          .flatMap(lambda x: [(x.split(',')[2], word) for word in re.compile('\w+').findall(x.lower())])
 
-words = rdd.map(lambda x: x.split(' ')).flatMap(lambda x: [(x[0], e) for e in x])
 df = sqlContext.createDataFrame(words, ["article","word"])
 df.registerTempTable("articles")
 
-res = sqlContext.sql("SELECT count(iCount) FROM (SELECT count(*) AS iCount FROM articles WHERE word=='computer' GROUP BY article) as Count where iCount > 0")
+res = sqlContext.sql("SELECT count(iCount) AS Count FROM (SELECT count(*) AS iCount FROM articles WHERE word='computer' GROUP BY article) as Count where iCount > 0")
 print(res.collect())

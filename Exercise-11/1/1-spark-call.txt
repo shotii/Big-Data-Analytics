@@ -1,9 +1,11 @@
 local:
+export PYSPARK_PYTHON=python3
 pyspark 1-spark.py 
 
 or
 
-PYSPARK_PYTHON=python3 pyspark --master yarn-client --driver-memory 500m --executor-memory 500m --conf spark.ui.port=4711
+export PYSPARK_PYTHON=python3
+pyspark
 
 then load the script
 

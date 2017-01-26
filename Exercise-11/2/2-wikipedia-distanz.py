@@ -1,10 +1,11 @@
-from pyspark import SparkContext
+from pyspark import SparkConf, SparkContext
 from pyspark.mllib.feature import HashingTF
 import numpy as np
-import csv, io, sys
+import csv, io, sys, re
 
-# threshold is given as program argument
-t = sys.argv[1]
+# threshold and output file name are given as program arguments
+t = float(sys.argv[1])
+output = sys.argv[2]
 
 # create sparkContext
 conf = SparkConf()
@@ -16,7 +17,7 @@ rdd = sc.textFile("/user/bigdata/wikipedia-text-tiny-clean500")
 
 # each article is mapped onto the tuple of title and word vector
 hashingTF = HashingTF()
-articles = rdd.map(lambda line: (line.split(",")[2], (hashingTF.transform(line.split(" ")))))
+articles = rdd.map(lambda line: (line.split(",")[2], (hashingTF.transform(re.compile('\w+').findall(line.lower())))))
 
 # this function calculates the cosine similarity for two instances of SparseVector
 def cosine_similarity(a, b):
@@ -38,4 +39,6 @@ def list_to_csv_str(x):
     return output.getvalue().strip()
 
 # save tuples of (article, list of similar articles as tuples (title, distance))
-articles_below_threshold.map(list_to_csv_str).saveAsTextFile('output1')
+articles_below_threshold.map(lambda line: (line[0], list_to_csv_str(line[1]))) \
+                        .saveAsTextFile(output)
+

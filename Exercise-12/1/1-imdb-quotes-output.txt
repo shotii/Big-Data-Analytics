@@ -1,0 +1,39 @@
+##################################################################################
+### Here are some results, the last entry of each row is the cosine similarity ###
+##################################################################################
+
+('Lin Meng', ('"Around the World in 80 Days"|"2004"|""|"Phileas Fogg"|"Phileas Fogg: [after drinking toomuch Chinese sake]  I am going to be  abominably ill.  [running off]"', 0.15158028098165388)),
+ 
+('Brian Suda', ('"Broadcast News"|"1987"|""|"Aaron Altman"|"Aaron Altman: [] A lot of alliterations from anxious anchors placed in  powerful posts!"', 0.24230803964656514)),
+ 
+('Nerlens Noel', ('"Adam and Six Eves"|"1962"|""|"Smiley"|"Smiley: [] Perhaps if he had concentrated on his sign language, he  mighta been able to get the message through to her. But he tried to  explain by usin\' his head, and the only thing that was good for was  somethin\' to hang his face on."', 0.22326722113656525)),
+
+('Canadian Electric Vehicles', ('"Something Borrowed"|"2011"|""|"Ethan"|"Ethan: [] You\'re all going to hell anyway, so you might as well do  something for yourself"', 0.20440122061839891)),
+
+('Indiana Attorney General', ('"Annabelle"|"2014"|""|"Father Perez"|"Father Perez: [] The loveliest masterpiece of the heart of God is the  heart of a mother."', 0.34782509497469233)),
+
+('Frederika Charlotte Riedesel', ('"Black Diamond"|"2009"|""|"The Black Miner"|"The Black Miner: [] We tied the noose around her neck - she wept and  bowed her head. We held fast to the end of the rope and hung her  till she was dead."', 0.26234520161340602)),
+
+
+
+
+('Douglas Anthony Cooper', ('"Paperback Hero"|"1999"|""|"Jack Willis,Ruby Vale"|"Jack Willis: [] I\'ve written a book. Ruby Vale: [] What kind of book? Jack Willis: [] A novel. Anyway, it\'s got your name on it. Ruby Vale: [] What? A book with me in it? Jack Willis: [] No, a book with your name on it, like on the cover. Ruby Vale: [] Like I wrote it? Jack Willis: [] Yeah. Ruby Vale: [] Why didn\'t you put your own name on it? Jack Willis: [] It\'s a... it\'s a... a romance novel."', 0.18880436034941694)), ('Basketball at the 2013 Bolivarian Games', ('"Singularity"|"2008"|""|"Wells,Michael"|"Michael: [Playing basketball]  Okay what are we at? Wells: [Thinks about it]  Nineteen-twenty Michael: [laughs]  You\'ve got nine dude! Wells: [] You\'re at fifteen."', 0.19505692170639996)),
+
+('Cumberland County Blues', ('"Airplane II: The Sequel"|"1982"|""|"Controller #3,Controller Jacobs,Controller #2"|"[the controllers thinking about the people in the hijacked airplane] Controller #2: [] They\'re screwed! Controller #3: [] They\'re dead! Controller Jacobs: [] Did I leave the iron on?"', 0.32652831262181664)),
+
+('Armstrong Water Aerodrome', ('"By the Sword"|"1991"|""|"Alexander Villard"|"Alexander Villard: [] Your blade is neither in quarte nor in sixte, and  your hand is in some vague no man\'s land around your navel, which  leaves you completely vulnerable on both sides. Now, if by sheer  coincidence you happen to engage the blade in one line, you will  most certainly   miss it in another."', 0.17249619975544239)),
+
+('Lalamusa', ('"The Change-Up"|"2011"|""|"Mitch Planko"|"Mitch Planko: [] This is a calendar. It has a schedule of everything you  need to do of everyday. It is at least 15 hours in a day. This is a  grocery store. People buy food here. If you are unsure, call your  wife. Always make sure you call your wife first."', 0.21913467565938463)), ('Ivan Sen', ('"Ban the Sadist Videos!"|"2005"|""|"Jesus Franco"|"Jesus Franco: [] I don\'t think it\'s acceptable to ban any film, not just  mine, mine too of course, but any film."', 0.17810196898326225)),
+
+('Salhouse', ('"Where in the World Is Carmen Sandiego?"|"1991"|""|"The Chief"|"The Chief: [] The loot is gone, and the chase is on!"', 0.31597952862757445)),
+
+('Frontier Battalion (Iran)', ('"\\xd4ran k\\xf4k\\xf4 hosutobu"|"2006"|"Taiy\\xf4 to umi to host bu (#1.8)"|"Tamaki Suou"|"Tamaki Suou: [] My little angel shouldn\'t be prancing around in a  swimsuit, at least not in front of two perverts like you."', 0.17342875011350267)), ('Payasos en la lavadora', ('"The Monkees"|"1966"|"Son of a Gypsy (#1.16)"|"Mama Maria"|"Mama Maria: [] He\'s a very tricky young man. You can tell he\'s a thief.  It\'s written all over his face. Mama Maria: [Peter has \'theif\' written on his forehead]  A good thief,  but a bad speller."', 0.31864327445934154)), ('Neorion', ('"Ch\\xe9ri"|"2009"|""|"Narrator"|"[first lines] Narrator: [] We may think ourselves familiar in this day and age with  the notion that whores of every description can very easily achieve  fame and fortune. But towards the end of the 19th century, there  what came to be known in France as the ""Belle Epoque"", a select  group of courtesans, who became for a short period, the most  celebrated and powerful women in the long history of prostitution."', 0.28646819507508531)),
+
+('40th GMA Dove Awards', ('"Will & Grace"|"1998"|"Grace"|"Replaced (#1.18),Jack McFarland"|"Jack McFarland: [] I bitch slapped the law and the law won."', 0.15911995328315337)),
+
+('Hassall Green', ('"Justice Is Mind"|"2013"|""|"John Darrow"|"John Darrow: [] Justice is not in the mind. It is in the evidence."', 0.29003750433915165)),
+
+('Mike Hershberger', ('"Umutsuzlar"|"1971"|""|"Cigdem"|"Cigdem: [] Sahneye cikar cikmaz gozlerim onu arardi. Sonra bir gun gul  gelmedi, o da gelmedi. Ertesi gun ve daha ertesi gun yine yoktu o.  Sonraki gun guller geldi ama o gelmedi. Ona oylesine alismistim ki,  dayanamadim sorusturdum. Aylarca gelip giden sessiz ve sicak  bakisli adamim kimdi ? Iki gun sonra ogrendim. Hastanedeymis,  sirtindan uc kursunla vurmuslar. Kimligini ogrenince sasirdim.  Meger bizim sessiz ve sicak bakisli adamimiz Istanbul un gayri  mesru butun islerini ceviren buyuk Firat\'mis. Hastaneye ziyaretine  gittim, sevincten gozleri doldu. Gunler sonra, uslu bir cocuk  cekingenligiyle oyuna geldi. Kendisini aradigim icin cok mutlu  olmus, tesekk\\xfcr etti. Ben, onun hayatinda devamli kanayan kirmizi  bir gulmusum. Konusurken utaniyor, yuzu kizariyordu. Hic guldugunu  gormedim. Sanki yuzunde gecmisin butun kederini tasiyordu. Gunler  gectikce onsuz edememeye basladim. O benim icin vazgecilmez,  uzaginda yasanilmaz bir hale geliyordu. Birgun beni anasina  goturdu. Anasi cok sevdi beni. Boynuma sarilip agladi. Yavrum, bu  deli herife sahip cik, onu kurtarirsan sen kurtarirsin dedi. Her an  olumun esiginde bir adamdi. Belinde silahi, her an vurusmaya hazir,  olume hazir yasiyordu. Yasadigi hayat onu her an benden alip  goturebilirdi. Onu kurtarmak, onu yasatmak zorundaydim. Benim  huzunlu ve kederli sevgilim olmemeliydi. Su testisi su yolunda  kirilmamaliydi. Kollarinin sicakliginda bir omru beraber  bitirmeliydik. Kirlari, tahta masali kahveleri severdi. Omru  hapislerde gecmis. Insanlarin hep kotu yanlarini gormus bazen ona  cocuk masallari anlatirdim. Gozlerini benden ayirmaz, sessiz, uslu  saatlerce dinlerdi. Bir gun bana, senin masallarindaki iyi insanlar  nereye gitti, dedi. Hala yasarlar dedim. Ben hic gormedim, dedi.  Hic bitmeyecek sandigimiz mutlu gunlerin ardindan acili gunler  geldi. Yokluguna alismak zordu. Bu aciya dayanmak, onu unutmak  zorundaydim. Aylar turlu sikintilarla gecti. Onsuzluga tam  alisirken yeniden donmesi butun hayatimi alt ust etti. Simdi ne  yapacagimi bilmiyorum."', 0.2374538863465058)),
+
+('Svetlana Tanasić', ('"Alphaville"|" une \\xe9trange aventure de Lemmy Caution"|"1965"|",Alpha 60"|"Alpha 60: [] The essence of the so-called capitalist world or the  communist world, is not an evil volition to subject their people by  the power of indoctrination or the power of finance; but simply the  natural ambition of any organization to plan all its actions."', 0.22913312454630969))]
+
